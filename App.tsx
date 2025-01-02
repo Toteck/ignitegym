@@ -1,4 +1,4 @@
-import { StatusBar, View } from "react-native";
+import { StatusBar } from "react-native";
 import {
   useFonts,
   Roboto_400Regular,
@@ -8,6 +8,8 @@ import {
 import { GluestackUIProvider, Text, Center } from "@gluestack-ui/themed";
 
 import { config } from "./config/gluestack-ui.config";
+
+import { Loading } from "@components/Loading";
 
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
@@ -24,7 +26,7 @@ export default function App() {
           <Text>Home</Text>
         </Center>
       ) : (
-        <View />
+        <Loading />
       )}
     </GluestackUIProvider>
   );

@@ -16,7 +16,7 @@ import { Button } from "@components/Button";
 export function SignIn() {
   return (
     <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
+      contentContainerStyle={{ flex: 1 }}
       showsVerticalScrollIndicator={false}
     >
       <VStack flex={1} bg="$gray700">

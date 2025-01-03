@@ -10,6 +10,7 @@ import { GluestackUIProvider, Text, Center } from "@gluestack-ui/themed";
 import { config } from "./config/gluestack-ui.config";
 
 import { SignUp } from "@screens/SignUp";
+import { SignIn } from "@screens/SignIn";
 
 import { Loading } from "@components/Loading";
 

@@ -10,7 +10,6 @@ export function Group({ name, isActive, ...rest }: Props) {
   return (
     <Button
       {...rest}
-      mx="$1"
       mr="$3"
       minWidth="$24"
       h="$10"

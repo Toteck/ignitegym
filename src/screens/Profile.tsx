@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { Alert, ScrollView, TouchableOpacity } from "react-native";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { VStack, Text, Center, Heading } from "@gluestack-ui/themed";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 import { Input } from "@components/Input";
 import { UserPhoto } from "@components/UserPhoto";
@@ -12,18 +13,36 @@ export function Profile() {
   const [userPhoto, setUserPhoto] = useState("https:github.com/toteck.png");
 
   async function handleUserPhotoSelect() {
-    const photoSelected = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 1,
-      aspect: [4, 4],
-      allowsEditing: true,
-    });
+    try {
+      const photoSelected = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 1,
+        aspect: [4, 4],
+        allowsEditing: true,
+      });
 
-    if (photoSelected.canceled) {
-      return;
+      if (photoSelected.canceled) {
+        return;
+      }
+
+      const photoUri = photoSelected.assets[0].uri;
+
+      if (photoUri) {
+        const photoInfo = (await FileSystem.getInfoAsync(photoUri)) as {
+          size: number;
+        };
+
+        if (photoInfo.size && photoInfo.size / 1024 / 1024 > 5) {
+          return Alert.alert(
+            "Essa imagem é muito grande.\nEscolha uma imagem de até 5MB."
+          );
+        }
+
+        setUserPhoto(photoUri);
+      }
+    } catch (error) {
+      console.log(error);
     }
-
-    setUserPhoto(photoSelected.assets[0].uri);
   }
   return (
     <VStack>

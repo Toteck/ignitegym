@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   VStack,
   Image,
@@ -16,11 +17,19 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
 export function SignUp() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+
   const navigator = useNavigation();
 
   function handleGoBack() {
     navigator.goBack();
   }
+
+  function handleSignUp() {}
+
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
@@ -47,16 +56,28 @@ export function SignUp() {
           <Center gap="$2" flex={1}>
             <Heading color="$gray100">Crie sua conta</Heading>
 
-            <Input placeholder="Nome" />
+            <Input placeholder="Nome" onChangeText={setName} />
 
             <Input
               placeholder="E-mail"
               keyboardType="email-address"
               autoCapitalize="none"
+              onChangeText={setEmail}
             />
-            <Input placeholder="Senha" secureTextEntry />
 
-            <Button title="Criar e acessar" />
+            <Input
+              placeholder="Senha"
+              secureTextEntry
+              onChangeText={setPassword}
+            />
+
+            <Input
+              placeholder="Confirme a senha"
+              secureTextEntry
+              onChangeText={setPasswordConfirm}
+            />
+
+            <Button onPress={handleSignUp} title="Criar e acessar" />
           </Center>
 
           <Button

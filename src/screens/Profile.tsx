@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ScrollView, TouchableOpacity } from "react-native";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { VStack, Text, Center, Heading } from "@gluestack-ui/themed";
@@ -8,13 +9,21 @@ import { UserPhoto } from "@components/UserPhoto";
 import { Button } from "@components/Button";
 
 export function Profile() {
+  const [userPhoto, setUserPhoto] = useState("https:github.com/toteck.png");
+
   async function handleUserPhotoSelect() {
-    await ImagePicker.launchImageLibraryAsync({
+    const photoSelected = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       quality: 1,
       aspect: [4, 4],
       allowsEditing: true,
     });
+
+    if (photoSelected.canceled) {
+      return;
+    }
+
+    setUserPhoto(photoSelected.assets[0].uri);
   }
   return (
     <VStack>
@@ -22,7 +31,7 @@ export function Profile() {
       <ScrollView contentContainerStyle={{ paddingBottom: 150 }}>
         <Center mt="$6" px="$10">
           <UserPhoto
-            source={{ uri: "https:github.com/toteck.png" }}
+            source={{ uri: userPhoto }}
             alt="Foto do usuário"
             size="xl"
           />

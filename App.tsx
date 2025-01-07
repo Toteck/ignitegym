@@ -18,7 +18,7 @@ export default function App() {
   return (
     <GluestackUIProvider config={config}>
       <StatusBar
-        barStyle={"dark-content"}
+        barStyle={"light-content"}
         backgroundColor={"transparent"}
         translucent
       />

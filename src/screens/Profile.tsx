@@ -8,6 +8,7 @@ import * as FileSystem from "expo-file-system";
 import { Input } from "@components/Input";
 import { UserPhoto } from "@components/UserPhoto";
 import { Button } from "@components/Button";
+import { ToastMessage } from "@components/ToastMessage";
 
 export function Profile() {
   const [userPhoto, setUserPhoto] = useState("https:github.com/toteck.png");
@@ -47,6 +48,15 @@ export function Profile() {
   return (
     <VStack>
       <ScreenHeader title="Perfil" />
+
+      <ToastMessage
+        id="1"
+        title="Mesagem de exemplo"
+        description="Descrição de exemplo exemplar exemplificando o exemplo"
+        action="success"
+        onClose={() => {}}
+      />
+
       <ScrollView contentContainerStyle={{ paddingBottom: 150 }}>
         <Center mt="$6" px="$10">
           <UserPhoto

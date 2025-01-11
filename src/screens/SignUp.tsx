@@ -19,6 +19,10 @@ import Logo from "@assets/logo.svg";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
+import axios from "axios";
+import { api } from "@services/api";
+import { Alert } from "react-native";
+
 type FormDataProps = {
   name: string;
   email: string;
@@ -54,13 +58,20 @@ export function SignUp() {
     navigator.goBack();
   }
 
-  function handleSignUp({
+  async function handleSignUp({
     name,
     email,
     password,
     password_confirm,
   }: FormDataProps) {
-    console.log({ name, email, password, password_confirm });
+    try {
+      const response = await api.post("/users", { name, email, password });
+      console.log(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        Alert.alert(error.response?.data.message);
+      }
+    }
   }
 
   return (

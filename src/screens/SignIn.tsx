@@ -5,6 +5,7 @@ import {
   Text,
   Heading,
   ScrollView,
+  useToast,
 } from "@gluestack-ui/themed";
 
 import { useNavigation } from "@react-navigation/native";
@@ -18,10 +19,13 @@ import { useAuth } from "@hooks/useAuth";
 
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { ToastMessage } from "@components/ToastMessage";
 
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+
+import { AppError } from "@utils/AppError";
 
 type FormDataProps = {
   email: string;
@@ -39,6 +43,8 @@ const signUpSchema = yup.object({
 export function SignIn() {
   const { signIn } = useAuth();
 
+  const toast = useToast();
+
   const {
     control,
     handleSubmit,
@@ -53,8 +59,28 @@ export function SignIn() {
     navigator.navigate("signup");
   }
 
-  function handleSignIn({ email, password }: FormDataProps) {
-    signIn(email, password);
+  async function handleSignIn({ email, password }: FormDataProps) {
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError
+        ? error.message
+        : "Não foi possível entrar. Tente novamente mais tarde!";
+
+      toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        ),
+      });
+    }
   }
 
   return (

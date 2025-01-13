@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   VStack,
   Image,
@@ -41,6 +43,8 @@ const signUpSchema = yup.object({
 });
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const { signIn } = useAuth();
 
   const toast = useToast();
@@ -61,6 +65,7 @@ export function SignIn() {
 
   async function handleSignIn({ email, password }: FormDataProps) {
     try {
+      setIsLoading(true);
       await signIn(email, password);
     } catch (error) {
       const isAppError = error instanceof AppError;
@@ -68,6 +73,8 @@ export function SignIn() {
       const title = isAppError
         ? error.message
         : "Não foi possível entrar. Tente novamente mais tarde!";
+
+      setIsLoading(false);
 
       toast.show({
         placement: "top",
@@ -138,7 +145,12 @@ export function SignIn() {
               )}
             />
 
-            <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
+            <Button
+              title="Acessar"
+              onPress={handleSubmit(handleSignIn)}
+              isLoading={isLoading}
+              isDisabled={isLoading}
+            />
           </Center>
           <Center flex={1} justifyContent="flex-end" mt="$4">
             <Text color="$gray100" fontSize="$sm" mb="$3" fontFamily="$body">

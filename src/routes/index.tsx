@@ -13,7 +13,7 @@ import { useAuth } from "@hooks/useAuth";
 export function Routes() {
   const { user } = useAuth();
 
-  console.log(user);
+  console.log("Usuário logado => ", user);
 
   const theme = DefaultTheme;
 

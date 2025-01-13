@@ -14,6 +14,8 @@ import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 import BackgroundImg from "@assets/background.png";
 import Logo from "@assets/logo.svg";
 
+import { useAuth } from "@hooks/useAuth";
+
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
@@ -35,6 +37,8 @@ const signUpSchema = yup.object({
 });
 
 export function SignIn() {
+  const { signIn } = useAuth();
+
   const {
     control,
     handleSubmit,
@@ -50,7 +54,7 @@ export function SignIn() {
   }
 
   function handleSignIn({ email, password }: FormDataProps) {
-    console.log({ email, password });
+    signIn(email, password);
   }
 
   return (

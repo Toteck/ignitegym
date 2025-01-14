@@ -10,6 +10,8 @@ import {
 import { ChevronRight } from "lucide-react-native";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
 
+import { api } from "@services/api";
+
 type Props = TouchableOpacityProps & {
   data: ExerciseDTO;
 };
@@ -27,7 +29,7 @@ export function ExerciseCard({ data, ...rest }: Props) {
       >
         <Image
           source={{
-            uri: "https://oestesom.vteximg.com.br/arquivos/ids/178208-425-425/barra-fixa-de-parede-crossfit-pull-up-treino-musculaco-D_NQ_NP_677572-MLB41374140786_042020-F.jpg?v=637273144409830000",
+            uri: `${api.defaults.baseURL}/exercise/thumb/${data.thumb}`,
           }}
           alt="Imagem do exercício"
           w="$16"

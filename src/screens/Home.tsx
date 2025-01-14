@@ -24,7 +24,7 @@ export function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [exercises, setExercises] = useState<ExerciseDTO[]>([]);
   const [groups, setGroups] = useState<string[]>([]);
-  const [groupSelected, setGroupSelected] = useState("Costas");
+  const [groupSelected, setGroupSelected] = useState("antebraço");
 
   const toast = useToast();
 

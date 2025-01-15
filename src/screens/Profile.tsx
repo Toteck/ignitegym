@@ -53,7 +53,7 @@ export function Profile() {
   const [userPhoto, setUserPhoto] = useState("https:github.com/toteck.png");
 
   const toast = useToast();
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const {
     control,
     handleSubmit,
@@ -100,7 +100,16 @@ export function Profile() {
           });
         }
 
-        setUserPhoto(photoUri);
+        const fileExtension = photoUri.split(".").pop();
+
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`
+            .toLowerCase()
+            .replaceAll(" ", ""),
+          uri: photoUri,
+          type: `${photoSelected.assets[0].type}/${fileExtension}`,
+        };
+        console.log(photoFile);
       }
     } catch (error) {
       console.log(error);
@@ -111,7 +120,14 @@ export function Profile() {
     try {
       setIsUpdating(true);
 
+      const userUpdated = user;
+      userUpdated.name = data.name;
+
+      // Atualiza no banco de dados
       await api.put(`/users`, { data });
+
+      // Atualiza no estado e no storage
+      await updateUserProfile(userUpdated);
 
       toast.show({
         placement: "top",
@@ -217,6 +233,7 @@ export function Profile() {
                   bg="$gray600"
                   secureTextEntry
                   onChangeText={onChange}
+                  errorMessage={errors.old_password?.message}
                 />
               )}
             />

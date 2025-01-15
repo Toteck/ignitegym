@@ -19,6 +19,8 @@ import { useAuth } from "@hooks/useAuth";
 import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
 
+import defaultUserPhotoImg from "@assets/userPhotoDefault.png";
+
 type FormDataProps = {
   name: string;
   email: string;
@@ -26,6 +28,8 @@ type FormDataProps = {
   password: string;
   confirm_password: string;
 };
+
+const PHOTO_SIZE = 33;
 
 const profileSchema = yup.object({
   name: yup.string().required("Informe o nome"),
@@ -50,7 +54,8 @@ const profileSchema = yup.object({
 
 export function Profile() {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [userPhoto, setUserPhoto] = useState("https:github.com/toteck.png");
+
+  const [photoIsLoading, setPhotoIsLoading] = useState(false);
 
   const toast = useToast();
   const { user, updateUserProfile } = useAuth();
@@ -67,6 +72,7 @@ export function Profile() {
   });
 
   async function handleUserPhotoSelect() {
+    setPhotoIsLoading(true);
     try {
       const photoSelected = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
@@ -108,11 +114,43 @@ export function Profile() {
             .replaceAll(" ", ""),
           uri: photoUri,
           type: `${photoSelected.assets[0].type}/${fileExtension}`,
-        };
-        console.log(photoFile);
+        } as any;
+
+        const userPhotoUploadForm = new FormData();
+        userPhotoUploadForm.append("avatar", photoFile);
+
+        const avatarUpdatedResponse = await api.patch(
+          "/users/avatar",
+          userPhotoUploadForm,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        const userUpdated = user;
+
+        userUpdated.avatar = avatarUpdatedResponse.data.avatar;
+
+        await updateUserProfile(userUpdated);
+
+        toast.show({
+          placement: "top",
+          render: ({ id }) => (
+            <ToastMessage
+              id={id}
+              action="success"
+              title="Foto atualizada!"
+              onClose={() => toast.close(id)}
+            />
+          ),
+        });
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setPhotoIsLoading(false);
     }
   }
 
@@ -168,7 +206,11 @@ export function Profile() {
       <ScrollView contentContainerStyle={{ paddingBottom: 150 }}>
         <Center mt="$6" px="$10">
           <UserPhoto
-            source={{ uri: userPhoto }}
+            source={
+              user.avatar
+                ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                : defaultUserPhotoImg
+            }
             alt="Foto do usuário"
             size="xl"
           />
@@ -180,7 +222,7 @@ export function Profile() {
               mt="$4"
               mb="$8"
             >
-              Alterar fotos
+              Alterar foto
             </Text>
           </TouchableOpacity>
           <Center w="$full" gap="$4">

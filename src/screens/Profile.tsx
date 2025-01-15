@@ -10,10 +10,29 @@ import { UserPhoto } from "@components/UserPhoto";
 import { Button } from "@components/Button";
 import { ToastMessage } from "@components/ToastMessage";
 
+import { Controller, useForm } from "react-hook-form";
+
+import { useAuth } from "@hooks/useAuth";
+
+type FormDataProps = {
+  name: string;
+  email: string;
+  password: string;
+  old_password: string;
+  confirm_password: string;
+};
+
 export function Profile() {
   const [userPhoto, setUserPhoto] = useState("https:github.com/toteck.png");
 
   const toast = useToast();
+  const { user } = useAuth();
+  const { control } = useForm<FormDataProps>({
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+    },
+  });
 
   async function handleUserPhotoSelect() {
     try {
@@ -78,11 +97,31 @@ export function Profile() {
             </Text>
           </TouchableOpacity>
           <Center w="$full" gap="$4">
-            <Input placeholder="Nome" bg="$gray600" />
-            <Input
-              value="mateusweslley@acad.ifma.edu.br"
-              bg="$gray600"
-              isReadOnly
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange } }) => (
+                <Input
+                  placeholder="Nome"
+                  bg="$gray600"
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange } }) => (
+                <Input
+                  placeholder="E-mail"
+                  bg="$gray600"
+                  onChangeText={onChange}
+                  value={value}
+                  isReadOnly
+                />
+              )}
             />
           </Center>
           <Heading

@@ -40,8 +40,8 @@ const profileSchema = yup.object({
       then: (schema) =>
         schema
           .oneOf([yup.ref("password")], "A confirmação de senha não confere")
-          .required("A confirmação de senha é obrigatória"),
-      otherwise: (schema) => schema.nullable(),
+          .required("A confirmação de senha é obrigatória")
+          .transform((value) => (!!value ? value : null)),
     }),
 });
 

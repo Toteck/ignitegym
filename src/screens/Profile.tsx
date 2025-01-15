@@ -16,6 +16,9 @@ import * as yup from "yup";
 
 import { useAuth } from "@hooks/useAuth";
 
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
+
 type FormDataProps = {
   name: string;
   email: string;
@@ -46,6 +49,7 @@ const profileSchema = yup.object({
 });
 
 export function Profile() {
+  const [isUpdating, setIsUpdating] = useState(false);
   const [userPhoto, setUserPhoto] = useState("https:github.com/toteck.png");
 
   const toast = useToast();
@@ -104,7 +108,42 @@ export function Profile() {
   }
 
   async function handleProfileUpdate(data: FormDataProps) {
-    console.log(data);
+    try {
+      setIsUpdating(true);
+
+      await api.put(`/users`, { data });
+
+      toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="success"
+            title={"Perfil atualizado com sucesso!"}
+            onClose={() => toast.close(id)}
+          />
+        ),
+      });
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível atualizar os dados. Tente novamente mais tarde";
+
+      toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        ),
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   }
   return (
     <VStack>
@@ -213,6 +252,8 @@ export function Profile() {
             <Button
               title="Atualizar"
               onPress={handleSubmit(handleProfileUpdate)}
+              isLoading={isUpdating}
+              isDisabled={isUpdating}
             />
           </Center>
         </Center>

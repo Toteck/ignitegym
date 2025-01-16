@@ -1,4 +1,7 @@
-import { storageAuthTokenGet } from "@storage/storageAuthToken";
+import {
+  storageAuthTokenGet,
+  storageAuthTokenSave,
+} from "@storage/storageAuthToken";
 import { AppError } from "@utils/AppError";
 import axios, { AxiosInstance, AxiosError } from "axios";
 
@@ -57,6 +60,53 @@ api.registerInterceptTokenManager = (signOut) => {
           }
 
           isRefreshing = true;
+
+          return new Promise(async (resolve, reject) => {
+            try {
+              const { data } = await api.post("/sessions/refresh-token", {
+                refresh_token,
+              });
+              await storageAuthTokenSave({
+                token: data.token,
+                refresh_token: data.refresh_token,
+              });
+
+              if (originalRequestConfig.data) {
+                originalRequestConfig.data = JSON.parse(
+                  originalRequestConfig.data
+                );
+              }
+
+              // Atualiza o token da requisição atual
+              originalRequestConfig.headers = {
+                Authorization: `Bearer ${data.token}`,
+              };
+              // Atualiza o token das próximas requisições
+              api.defaults.headers.common[
+                "Authorization"
+              ] = `Bearer ${data.token}`;
+
+              failedQueue.forEach((request) => {
+                request.onSuccess(data.token);
+              });
+
+              console.log("TOKEN ATUALIZADO");
+
+              resolve(api(originalRequestConfig));
+            } catch (error: any) {
+              failedQueue.forEach((request) => {
+                request.onFailure(error);
+              });
+
+              signOut();
+              reject(error);
+            } finally {
+              // Chegando aqui temos o token atualizado
+              isRefreshing = false;
+              // limpa a fila de requisições
+              failedQueue = [];
+            }
+          });
         }
 
         signOut();

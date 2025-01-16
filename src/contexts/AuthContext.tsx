@@ -85,7 +85,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   async function updateUserProfile(userUpdated: UserDTO) {
     try {
       setUser(userUpdated);
-      await storageUserSave(userUpdated)
+      await storageUserSave(userUpdated);
     } catch (error) {
       throw error;
     }
@@ -111,6 +111,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   useEffect(() => {
     LoadUserData();
   }, []);
+
+  useEffect(() => {
+    const subscribe = api.registerInterceptTokenManager(signOut);
+
+    return () => {
+      subscribe();
+    };
+  }, [signOut]);
 
   return (
     <AuthContext.Provider

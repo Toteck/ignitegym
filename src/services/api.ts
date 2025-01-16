@@ -1,7 +1,13 @@
+import { storageAuthTokenGet } from "@storage/storageAuthToken";
 import { AppError } from "@utils/AppError";
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosError } from "axios";
 
 type SignOut = () => void;
+
+type PromiseType = {
+  onSuccess: (token: string) => void;
+  onFailure: (error: AxiosError) => void;
+};
 
 type APIInstanceProps = AxiosInstance & {
   registerInterceptTokenManager: (signOut: SignOut) => () => void;
@@ -11,15 +17,46 @@ const api = axios.create({
   baseURL: "https://ignitegym-api.onrender.com",
 }) as APIInstanceProps;
 
+let failedQueue: Array<PromiseType> = [];
+let isRefreshing = false;
+
 api.registerInterceptTokenManager = (signOut) => {
   const interceptTokenManager = api.interceptors.response.use(
     (response) => response,
-    (requestError) => {
+    async (requestError) => {
       if (requestError?.response?.status === 401) {
         if (
           requestError.response.data?.message === "token.expired" ||
           requestError.response.data?.message === "token.invalid"
         ) {
+          const { refresh_token } = await storageAuthTokenGet();
+
+          if (!refresh_token) {
+            signOut();
+            return Promise.reject(requestError);
+          }
+
+          const originalRequestConfig = requestError.config;
+
+          if (isRefreshing) {
+            // A primeira requisição não entra no IF
+            // Mas na segunda vez entra
+            return new Promise((resolve, reject) => {
+              failedQueue.push({
+                onSuccess: (token: string) => {
+                  originalRequestConfig.headers = {
+                    Authorization: `Bearer ${token}`,
+                  };
+                  resolve(api(originalRequestConfig));
+                },
+                onFailure: (error: AxiosError) => {
+                  reject(error);
+                },
+              });
+            });
+          }
+
+          isRefreshing = true;
         }
 
         signOut();
